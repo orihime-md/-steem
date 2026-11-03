@@ -1,0 +1,20 @@
+{
+  "name": "steem-clan-platform",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "メsteem — Deep-black clan & private messaging platform hosted on Render with PostgreSQL",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.3",
+    "ws": "^8.18.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
