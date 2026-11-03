@@ -14,6 +14,7 @@
 
 import 'dotenv/config';
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -663,11 +664,24 @@ app.get('/api/invites/:token', requireUser, async (req, res) => {
   }
 });
 
-// Serve clean single-file frontend index.html
-const publicDir = path.join(__dirname, 'public');
-app.use(express.static(publicDir));
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(publicDir, 'index.html'));
+// Serve standalone single-file frontend index.html directly from the repo root
+// (never expose server.js, package.json, or .env via directory static middleware)
+const rootIndexPath = path.join(__dirname, 'index.html');
+const fallbackPublicIndexPath = path.join(__dirname, 'public', 'index.html');
+
+function resolveFrontendHtmlPath() {
+  return fs.existsSync(rootIndexPath) ? rootIndexPath : fallbackPublicIndexPath;
+}
+
+app.get(['/', '/index.html'], (_req, res) => {
+  res.sendFile(resolveFrontendHtmlPath());
+});
+
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  res.sendFile(resolveFrontendHtmlPath());
 });
 
 // ---------------------------------------------------------------------------
